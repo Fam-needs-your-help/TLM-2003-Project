@@ -5,35 +5,41 @@ import tkinter
 from datetime import datetime
 
 def sentenceGenerator():      #lo-fi method
-      # input generator
-      inputA1 = input("Would you like to find a specific Driver? (YES/NO)")
-      if inputA1 == "YES":
-            inputA2 = input("Please enter their names separately. (e.g. Nigel Ridzuan Ali etc..)")
-      inputB1 = input("Would you like to find a specific Vehicle? (YES/NO)")
-      if inputB1 == "YES":
-            inputB2 = input("Please enter the vehicle numbers separately. (e.g. SBS6289D SBS6009W SBS1234Q etc...)")
-      inputC1 = input("Would you like to find a specific Event? (YES/NO)")
-      if inputC1 == "YES":
-            inputC2 = input("Please enter the specific event. (e.g. Sudden brake in turn)")
-      # query generator
-      if inputA2 != None:
-            inputA2 = str(inputA2.split())
-            inputA2 = "Driver in " + inputA2
-      if inputB2 != None:
-            inputB2 = str(inputB2.split())
-            inputB2 = "Vehicle in " + inputB2
-      if inputC2 != None:
-            inputC2 = str(inputC2.split())
-            inputC2 = "Event in " + inputC2
-      # sentence generator
-      if inputA2 and inputB2 and inputC2 != None: sentence = inputA2 + " and " + inputB2 + " and " + inputC2
-      elif inputA2 and inputB2 != None: sentence = inputA2 + " and " + inputB2
-      elif inputA2 and inputC2 != None: sentence = inputA2 + " and " + inputC2
-      elif inputB2 and inputC2 != None: sentence = inputB2 + " and " + inputC2
-      elif inputA2 != None: sentence = inputA2
-      elif inputB2 != None: sentence = inputB2
-      elif inputC2 != None: sentence = inputC2
-      return sentence
+    inputA1 = input("Would you like to find a specific Driver(YES/NO):  ")
+    if inputA1 == "YES": inputA2 = input("Please enter their names separately (e.g. Nigel Ridzuan Ali etc..):     ")
+    else: inputA2 = None
+    inputB1 = input("Would you like to find a specific Vehicle (YES/NO):  ")
+    if inputB1 == "YES": inputB2 = input("Please enter the vehicle numbers separately (e.g. SBS6289D SBS6009W SBS1234Q etc...):     ")
+    else: inputB2 = None
+    inputC1 = input("Would you like to find a specific Event (YES/NO):  ")
+    if inputC1 == "YES": inputC2 = input("Please enter the specific event (e.g. Sudden brake in turn):     ")
+    else: inputC2 = None
+    # query generator
+    if inputA2 != None:
+        inputA2 = str(inputA2.split())
+        inputA2 = "Driver in " + inputA2
+    if inputB2 != None:
+        inputB2 = str(inputB2.split())
+        inputB2 = "Vehicle in " + inputB2
+    if inputC2 != None:
+        inputC2 = str(inputC2.split())
+        inputC2 = "Event in " + inputC2
+    # sentence generator
+    if inputA2 != None and inputB2!= None and inputC2 != None:
+        sentence = inputA2 + " and " + inputB2 + " and " + inputC2
+    elif inputA2 != None and inputB2 != None:
+        sentence = inputA2 + " and " + inputB2
+    elif inputA2 != None and inputC2 != None:
+        sentence = inputA2 + " and " + inputC2
+    elif inputB2 != None and inputC2 != None:
+        sentence = inputB2 + " and " + inputC2
+    elif inputA2 != None:
+        sentence = inputA2
+    elif inputB2 != None:
+        sentence = inputB2
+    elif inputC2 != None:
+        sentence = inputC2
+    return sentence
 
 # insert code here to extract info from .csv files
 #   https://www.youtube.com/watch?v=Xi52tx6phRU
