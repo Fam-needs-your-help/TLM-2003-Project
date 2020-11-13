@@ -70,6 +70,7 @@ plugins.ScrollZoomToggler().add_to(SG_Map)
 plugins.Fullscreen(position='topright').add_to(SG_Map)
 
 # filter function w/test values
+#   https://kanoki.org/2020/01/21/pandas-dataframe-filter-with-multiple-conditions/
 csvFile = (csvFile.query(sentenceGenerator()))
 
 # adding markers to MAP
