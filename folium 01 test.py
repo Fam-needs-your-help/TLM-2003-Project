@@ -1,9 +1,7 @@
 import folium
 from folium import plugins
 import pandas
-import tkinter
-# CSV for <1K rows, specialized for parsing datasets
-from datetime import datetime
+# CSV for <1K rows, specialized for parsing datasets, UTF compatible too
 
 def sentenceGenerator():      #lo-fi method
       inputA1 = input("Would you like to find a specific Driver? (YES/NO): ")
