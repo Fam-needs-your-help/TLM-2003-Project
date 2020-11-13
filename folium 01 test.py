@@ -82,3 +82,4 @@ for index, row in csvFile.iterrows():
 
 # generate html file with map
 SG_Map.save('SGMap.html')
+webbrowser.open_new('SGMap.html')
