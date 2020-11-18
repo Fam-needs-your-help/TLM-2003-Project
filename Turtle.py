@@ -1,72 +1,110 @@
-import folium
-from folium import plugins
+import PySimpleGUI as gui
+import sys
 import pandas
+import folium
 import webbrowser
+from folium import plugins
 from folium.plugins import HeatMap
-# CSV for <1K rows, specialized for parsing datasets
 
-def sentenceGenerator():
-      #lo-fi method
-      inputA1 = input("Would you like to find a specific Driver? (YES/NO): ")
-      if inputA1 == "YES":
-            inputA2 = input("Please enter their names separately. (e.g. Nigel Ridzuan Ali etc..): ")
-      else:
-            inputA2 = None
-      inputB1 = input("Would you like to find a specific Vehicle? (YES/NO): ")
-      if inputB1 == "YES":
-            inputB2 = input("Please enter the vehicle numbers separately. (e.g. SBS6289D SBS6009W SBS1234Q etc...): ")
-      else:
-            inputB2 = None
-      inputC1 = input("Would you like to find a specific Event? (YES/NO): ")
-      if inputC1 == "YES":
-            inputC2 = input("Please enter the specific event. (e.g. Sudden brake in turn): ")
-      else:
-            inputC2 = None
+# layout of first window for filename input
+layout1 = [[gui.Text('Enter file name (e.g. include.csv)')],
+           [gui.Text('Ensure file is in same directory as program')],
+           [gui.InputText()],
+           [gui.Button('Proceed')]]
 
-      # query generator
-      if inputA2 != None:
-            inputA2 = str(inputA2.split())
-            inputA2 = "Driver in " + inputA2
-      if inputB2 != None:
-            inputB2 = str(inputB2.split())
-            inputB2 = "Vehicle in " + inputB2
-      if inputC2 != None:
-            inputC2 = str(inputC2.split())
-            inputC2 = "Event in " + inputC2
+# open first window for filename input
+window1 = gui.Window('Accident Prone Mapper', layout1)
 
-      # sentence generator
-      if inputA2 != None and inputB2 != None and inputC2 != None:
-            sentence = inputA2 + " and " + inputB2 + " and " + inputC2
-      elif inputA2 != None and inputB2 != None:sentence = inputA2 + " and " + inputB2
-      elif inputA2 != None and inputC2 != None:sentence = inputA2 + " and " + inputC2
-      elif inputB2 != None and inputC2 != None:sentence = inputB2 + " and " + inputC2
-      elif inputA2 != None : sentence = inputA2
-      elif inputB2 != None : sentence = inputB2
-      elif inputC2 != None : sentence = inputC2
-      else: sentence = "Speed > 0"
-      return sentence
+# check user input in window
+while True:
+    event, values = window1.read()
+    if event == gui.WIN_CLOSED:
+        sys.exit()
+    if event == 'Proceed':
+        csvName = values[0]
+        break
 
-def eventIndicator(input):
-    if input == 'Braking': output = str('glyphicon-bold')
-    elif input == 'Acceleration': output = str('glyphicon-font')
-    elif input == 'Lane Change': output = str('glyphicon-random')
-    elif input == 'Turning': output = str('glyphicon-share-alt')
-    else: output = str('glyphicon-flag')
-    return output
+# close the first window
+window1.close()
 
-# insert code here to extract info from .csv files
-#   https://www.youtube.com/watch?v=Xi52tx6phRU
-#   https://docs.python.org/2/library/datetime.html#strftime-and-strptime-behavior
-csvFile = pandas.read_csv('juneroute.csv')
+# extract info from csv files
+csvFile = pandas.read_csv(csvName)
 
-# create map object and save stats
-SG_Map = folium.Map(location=[1.38, 103.8], zoom_start=12)
+# INSERT DATA CLEANSING HERE
 
-# aesthe-THICC (NOT COMPATIBLE WITH HEATMAP)
-# folium.raster_layers.TileLayer('Open Street Map').add_to(SG_Map)
-# folium.raster_layers.TileLayer('Stamen Terrain').add_to(SG_Map)
-# folium.raster_layers.TileLayer('Stamen Toner').add_to(SG_Map)
-# folium.LayerControl().add_to(SG_Map)
+# strings and sets used to collect unique values for dropdown lists
+drivers = ''
+allDriver = set()
+vehicles = ''
+allVehicle = set()
+events = ''
+allEvent = set()
+
+# scan through csv for unique values and create statements for dropdown lists
+for index, row in csvFile.iterrows():
+    if row['Driver'] not in allDriver:
+        drivers = drivers + row['Driver'] + ','
+        allDriver.add(row['Driver'])
+
+    if row['Vehicle'] not in allVehicle:
+        vehicles = vehicles + row['Vehicle'] + ','
+        allVehicle.add(row['Vehicle'])
+
+    if row['Event'] not in allEvent:
+        events = events + row['Event'] + ','
+        allEvent.add(row['Event'])
+
+# empty sets to save memory?
+allDriver.clear()
+allVehicle.clear()
+allEvent.clear()
+
+# layout of second window for user selections
+layout2 = [[gui.Text('Select options to display on map (ensure driver and vehicle match)')],
+          [gui.Text('Driver: '), gui.Combo(drivers.split(","))],
+          [gui.Text('Vehicle: '), gui.Combo(vehicles.split(","))],
+          [gui.Text('Event: '), gui.Combo(events.split(","))],
+          [gui.Button('Create Map')]]
+
+# open second window for user selections
+window2 = gui.Window('Accident Prone Mapper', layout2)
+
+# check user input in window and create query statement
+while True:
+    event, values = window2.read()
+    if event == gui.WIN_CLOSED:
+        sys.exit()
+    if event == 'Create Map':
+        dvr = "Driver in " + str(values[0].split(","))
+        veh = "Vehicle in " + str(values[1].split(","))
+        evt = "Event in " + str(values[2].split(","))
+        if values[0] == "" and values[1] == "" and values[2] == "":
+            selection = None
+        if values[0] != "" and values[1] == "" and values[2] == "":
+            selection = str(dvr)
+        if values[0] == "" and values[1] != "" and values[2] == "":
+            selection = str(veh)
+        if values[0] == "" and values[1] == "" and values[2] != "":
+            selection = str(evt)
+        if values[0] != "" and values[1] != "" and values[2] == "":
+            selection = str(dvr) + " and " + str(veh)
+        if values[0] != "" and values[1] == "" and values[2] != "":
+            selection = str(dvr) + " and " + str(evt)
+        if values[0] == "" and values[1] != "" and values[2] != "":
+            selection = str(veh) + " and " + str(evt)
+        if values[0] != "" and values[1] != "" and values[2] != "":
+            selection = str(dvr) + " and " + str(veh) + " and " + str(evt)
+        break
+
+# close second window
+window2.close()
+
+# filter csv based on user selection
+if selection != None:
+    csvFile = (csvFile.query(str(selection)))
+
+# create map object and zoom into Singapore
+SG_Map = folium.Map(location=[1.36, 103.85], zoom_start=12)
 
 # WIDGETS via folium plugins: minimapEN, minimap, scrollzoom, fullscreen
 minimap = plugins.MiniMap(toggle_display=True)
@@ -74,19 +112,20 @@ SG_Map.add_child(minimap)
 plugins.ScrollZoomToggler().add_to(SG_Map)
 plugins.Fullscreen(position='topright').add_to(SG_Map)
 
-# filter function w/test values
-csvFile = (csvFile.query(sentenceGenerator()))
-
 # adding markers to MAP
 # https://www.kaggle.com/daveianhickey/how-to-folium-for-maps-heatmaps-time-data
 heat_data = [[row['Latitude'],row['Longitude']] for index, row in csvFile.iterrows()]
 HeatMap(heat_data).add_to(SG_Map)
 
+# add csv data as markers to MAP
+# 19/17/2020: expand window to visualize comment data more clearly
 for index, row in csvFile.iterrows():
     folium.Marker([row['Latitude'], row['Longitude']],
-                  popup=row['Driver'] + ' ' + row['Address'] + ' ' + row['Vehicle'] + ' ' + row['Event'],
-                  icon=folium.Icon(icon=eventIndicator(row['Event']), prefix='glyphicon')).add_to(SG_Map)
+                  popup=row['Driver'] + ' ' + row['Vehicle'] + ' ' +
+                        row['Event'] + ' ' + row['Address']).add_to(SG_Map)
 
-# generate html file with map
+# generate html file of map
 SG_Map.save('SGMap.html')
+
+# open html in browser
 webbrowser.open_new('SGMap.html')
