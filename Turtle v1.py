@@ -64,6 +64,7 @@ layout2 = [[gui.Text('Select options to display on map (ensure driver and vehicl
           [gui.Text('Driver: '), gui.Combo(drivers.split(","))],
           [gui.Text('Vehicle: '), gui.Combo(vehicles.split(","))],
           [gui.Text('Event: '), gui.Combo(events.split(","))],
+          [gui.Text('Map Type: '), gui.Combo(['Markers', 'Heatmap'])],
           [gui.Button('Create Map')]]
 
 # open second window for user selections
@@ -94,6 +95,7 @@ while True:
             selection = str(veh) + " and " + str(evt)
         if values[0] != "" and values[1] != "" and values[2] != "":
             selection = str(dvr) + " and " + str(veh) + " and " + str(evt)
+        mapType = values[3]
         break
 
 # close second window
@@ -112,17 +114,19 @@ SG_Map.add_child(minimap)
 plugins.ScrollZoomToggler().add_to(SG_Map)
 plugins.Fullscreen(position='topright').add_to(SG_Map)
 
-# adding markers to MAP
+
+# ad csv data as heatmap to MAP
 # https://www.kaggle.com/daveianhickey/how-to-folium-for-maps-heatmaps-time-data
-heat_data = [[row['Latitude'],row['Longitude']] for index, row in csvFile.iterrows()]
-HeatMap(heat_data).add_to(SG_Map)
+if mapType == 'Heatmap':
+    heat_data = [[row['Latitude'],row['Longitude']] for index, row in csvFile.iterrows()]
+    HeatMap(heat_data).add_to(SG_Map)
 
 # add csv data as markers to MAP
 # 19/17/2020: expand window to visualize comment data more clearly
-for index, row in csvFile.iterrows():
-    folium.Marker([row['Latitude'], row['Longitude']],
-                  popup=row['Driver'] + ' ' + row['Vehicle'] + ' ' +
-                        row['Event'] + ' ' + row['Address']).add_to(SG_Map)
+if mapType == 'Marker':
+    for index, row in csvFile.iterrows():
+        folium.Marker([row['Latitude'], row['Longitude']],
+                      popup=row['Driver'] + '\n' + row['Vehicle'] + '\n' + row['Event'] + '\n' + row['Address']).add_to(SG_Map)
 
 # generate html file of map
 SG_Map.save('SGMap.html')
