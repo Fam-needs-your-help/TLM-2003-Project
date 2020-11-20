@@ -123,7 +123,7 @@ if mapType == 'Heatmap':
 
 # add csv data as markers to MAP
 # 19/17/2020: expand window to visualize comment data more clearly
-if mapType == 'Marker':
+if mapType == 'Markers':
     for index, row in csvFile.iterrows():
         folium.Marker([row['Latitude'], row['Longitude']],
                       popup=row['Driver'] + '\n' + row['Vehicle'] + '\n' + row['Event'] + '\n' + row['Address']).add_to(SG_Map)
